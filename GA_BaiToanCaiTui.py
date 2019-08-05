@@ -64,7 +64,7 @@ def mutate(individual, mutation_rate = 0.05):
     individual_new = individual.copy()
     if random.random() < mutation_rate:
         index = random.randint(0, n-1)
-        individual_new[index] = 1 - individual_new[index]
+        individual_new[index] = generate_random_value()
     return individual_new
 
 # tao quan the moi
