@@ -1,42 +1,36 @@
-# phát biểu: có n vật có giá trị và cân nặng có trước
-# hãy để n vật này vào một cái túi có sức chứa tối đa x kg
+# phát biểu: có n = 12 vật có giá trị và cân nặng có trước
+# hãy để n vật này vào một cái túi có sức chứa tối đa max_weight = 70kg
 # sao cho giá trị trong chiếc túi là lớn nhất.
 
 import random
 
 n = 12   # so luong vat
-m = 100 # so luong ca the trong quan the
-n_generations = 100 # so doi
+m = 400 # so luong ca the trong quan the
+n_generations = 1000 # so doi
 fitnesses = []  # de ve do thi fitnesses
-max_weight = 70 # 
+max_weight = 70 # khối lượng tối đa cái túi có thể đựng được
 
-# cho truoc cac thong so
+# cho truoc du lieu
 weights = [1, 2, 5, 7, 10, 12, 15, 23, 32, 33, 35, 37]  # can nang cac vat
 prices =  [1, 3, 6, 7, 12, 15, 25, 32, 44, 45, 47, 50]  # gia tri cua cac vat tuong ung
 
 # tao gia tri gen ngau nhien
-def generate_random_value(bound = 1):# nếu muốn nhiều vật hơn thì tăng bound lên
-    return random.randint(0, bound)
+def generate_random_value(bound = 1):  # bound là số lượng tối đa của mỗi vật
+    return random.randint(0, bound)    # nếu muốn nhiều vật hơn thì tăng bound lên
 
 # tinh fitness
 def compute_fitness(individual):
     fitness = sum(c*x for c, x in zip(individual, prices))
+
+    # kiem tra xem individual co vuot qua khoi luong khong
+    if compute_weight(individual) > max_weight:
+        fitness /= 1000
     return fitness
 
 # tinh can nang
 def compute_weight(individual):
     sum_weight = sum(c*x for c, x in zip(individual, weights))
     return sum_weight
-
-# giam do vat
-def weight_reduction(individual):
-    individual_new = individual.copy()
-    while True:
-        if compute_weight(individual_new) <= max_weight:
-            break
-        index = random.randint(0, n-1)
-        individual_new[index] = 0
-    return individual_new
 
 # tao nhiem sac the
 def create_individual():
@@ -63,10 +57,6 @@ def crossover(individual1, individual2, crossover_rate = 0.9):
         for i in range(index):
             individual_c1[i] = individual2[i]
             individual_c2[i] = individual1[i]
-    if compute_weight(individual_c1) > max_weight:
-        individual_c1 = weight_reduction(individual_c1)
-    if compute_weight(individual_c2) > max_weight:
-        individual_c2 = weight_reduction(individual_c2)
     return individual_c1, individual_c2
 
 # dot bien
@@ -75,8 +65,6 @@ def mutate(individual, mutation_rate = 0.05):
     if random.random() < mutation_rate:
         index = random.randint(0, n-1)
         individual_new[index] = 1 - individual_new[index]
-    if compute_weight(individual_new) > max_weight:
-        individual_new = weight_reduction(individual_new)
     return individual_new
 
 # tao quan the moi
@@ -109,20 +97,10 @@ def create_new_population(old_popuation):
 # tao quan the ban dau
 population = [create_individual() for _ in range(m)]
 
-# kiem tra khoi luong
-for i in range(m):
-    if compute_weight(population[i]) > max_weight:
-        population[i] = weight_reduction(population[i])
-
 for _ in range(n_generations):
     population = create_new_population(population)
 
-# import matplotlib.pyplot as plt
-# plt.plot(fitnesses)
-# plt.xlabel('generation')
-# plt.ylabel('fitness')
-# plt.show()
-# print('cach cho do vao: ', sorted(population, key = compute_fitness)[-1])
-# print('weight', compute_weight(sorted(population, key = compute_fitness)[-1]))
-
-print('cach sap xep do: ', sorted(population)[-1])
+sorted_population = sorted(population, key = compute_fitness)
+print('cach cho do vao: ', sorted_population[-1])
+print('khoi luong: ', compute_weight(sorted_population[-1]))
+print('gia tri: ', compute_fitness(sorted_population[-1]))
